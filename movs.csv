@@ -1,0 +1,13 @@
+ID, Name, Type, Special, Damage, Precition
+1, Lanzallamas, Fuego, 1, 90, 100
+2, Llamarada, Fuego, 1, 110, 70
+3, Envite Igneo, Fuego, 0, 100, 90
+4, Nitrocarga, Fuego, 0, 90, 100
+5, Hidropulso, Agua, 1, 90, 100
+6, Hidrobomba, Agua, 1, 110, 70
+7, Concha Filo, Agua, 0, 90, 100
+8, Hidroariete, Agua, 0, 100, 90
+9, Planta Feroz, Planta, 0, 110, 70
+10, Hoja Aguda, Planta, 0, 90, 100
+11, Lluevehojas, Planta, 1, 100, 90
+12, Gigadrenado, Planta, 1, 90, 100
