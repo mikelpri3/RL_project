@@ -2,11 +2,9 @@ import pandas as pd
 from typing import List, Dict, Optional
 
 # Se asume que el archivo 'classes.py' está en el mismo directorio
-from classes import Movimiento, Pokemon
+from classes import Movimiento, Pokemon, Entrenador
 
 # --- DEFINICIÓN GLOBAL DE LA TABLA DE EFECTIVIDADES ---
-# Se define aquí para que pueda ser importada fácilmente en otros archivos
-# con: from data import df_tipos
 
 tipos = [
     "Normal", "Fuego", "Agua", "Planta", "Electrico", "Hielo", "Lucha", "Veneno", "Tierra",
@@ -139,3 +137,55 @@ def crear_todos_los_pokemon() -> List[Pokemon]:
         lista_pokemon_creados.append(pokemon_actual)
 
     return lista_pokemon_creados
+
+
+
+def crear_todos_los_entrenadores() -> List[Entrenador]:
+    """
+    Crea una lista de objetos Entrenador a partir del CSV, asignándoles
+    sus respectivos equipos de Pokémon.
+
+    Returns:
+        List[Entrenador]: Una lista con todas las instancias de la clase Entrenador.
+    """
+    # 1. Necesitamos todos los objetos Pokémon disponibles para poder asignarlos.
+    #    Los convertimos a un diccionario para una búsqueda por nombre súper rápida.
+    lista_pokemon_disponibles = crear_todos_los_pokemon()
+    pokemon_lookup = {pokemon.name: pokemon for pokemon in lista_pokemon_disponibles}
+
+    # 2. Leemos el archivo CSV de los entrenadores.
+    df_trainers = pd.read_csv('assets/csv/trainer_pokemon.csv')
+    df_trainers.columns = [col.strip() for col in df_trainers.columns]
+
+    lista_entrenadores_creados = []
+    entrenador_id_counter = 1 # Para el ID autoincremental
+
+    # 3. Iteramos sobre cada fila para crear un entrenador.
+    for _, row in df_trainers.iterrows():
+        trainer_name = row['TrainerName'].strip()
+
+        # 4. Creamos la instancia base del Entrenador.
+        entrenador_actual = Entrenador(
+            id=entrenador_id_counter,
+            name=trainer_name,
+            imagen=f"assets/images/trainer_images/{trainer_name}.png"
+        )
+        
+        # 5. Buscamos los Pokémon de su equipo en nuestro diccionario.
+        equipo_pokemon = []
+        nombres_pokemon_equipo = [row['Pokemon1'], row['Pokemon2'], row['Pokemon3']]
+        
+        for nombre_poke in nombres_pokemon_equipo:
+            if pd.notna(nombre_poke):
+                # Usamos .get() para buscar el objeto Pokémon por su nombre
+                pokemon_obj = pokemon_lookup.get(nombre_poke.strip())
+                if pokemon_obj:
+                    equipo_pokemon.append(pokemon_obj)
+
+        # 6. Asignamos el equipo al entrenador y lo añadimos a la lista.
+        entrenador_actual.asignar_equipo(equipo_pokemon)
+        lista_entrenadores_creados.append(entrenador_actual)
+        
+        entrenador_id_counter += 1 # Incrementamos el ID para el siguiente
+
+    return lista_entrenadores_creados
