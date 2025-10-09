@@ -1,4 +1,4 @@
-ID, Name, Type, Special, Damage, Precition
+ID, Name, Type, Special, Damage, Precision
 1, Lanzallamas, Fuego, 1, 90, 100
 2, Llamarada, Fuego, 1, 110, 70
 3, Envite Igneo, Fuego, 0, 100, 90
