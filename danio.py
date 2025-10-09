@@ -1,6 +1,7 @@
 # Importamos el DataFrame desde nuestro archivo data.py
 from data import df_tipos
 import pandas as pd # Lo necesitamos por si un tipo es nulo (NaN)
+import random
 
 def calcular_efectividad(tipo_atacante, tipo_defensor):
     """
@@ -43,11 +44,28 @@ def calcular_danio(pokemon_atacante, pokemon_defensor, mov):
     Asume que los objetos pokemon y mov tienen los atributos necesarios.
     """
     danio = 0
+    precision_random = random.randint(1, 100)
 
+    if mov.precision <= precision_random:
+        danio = 0
+        print("El ataque ha fallado!")
+        return danio
     # La efectividad total es el producto de las efectividades contra cada tipo.
     efectividad1 = calcular_efectividad(mov.tipo, pokemon_defensor.tipo1)
     efectividad2 = calcular_efectividad(mov.tipo, pokemon_defensor.tipo2)
     efectividad_total = efectividad1 * efectividad2
+
+    if efectividad_total == 2:
+        print("Es superefectivo!!")
+    if efectividad_total == 4:
+        print("Es megaefectivo!!")
+    if efectividad_total == 0.5:
+        print("Es poco efectivo...")
+    if efectividad_total == 0.25:
+        print("Es muy poco efectivo...")
+    if efectividad_total == 0:
+        print("El pokemon rival es inmune...")
+    
 
     # El multiplicador por ser del mismo tipo (STAB)
     multiplicador_stab = same_type(pokemon_atacante.tipo1, pokemon_atacante.tipo2, mov.tipo)
@@ -59,6 +77,7 @@ def calcular_danio(pokemon_atacante, pokemon_defensor, mov):
         danio = mov.danio * efectividad_total * multiplicador_stab * (pokemon_atacante.ataque_fisico / pokemon_defensor.defensa_fisica)
 
     return danio
+
 
 
 def ko(danio, vida):
