@@ -25,7 +25,7 @@ def calcular_efectividad(tipo_atacante, tipo_defensor):
 
 
 
-def same_type(tipo_pokemon1, tipo_pokemon2, tipo_mov):
+def same_type_attack_bonus(tipo_pokemon1, tipo_pokemon2, tipo_mov):
     """
     Aplica el multiplicador STAB (Same-Type Attack Bonus) si el tipo del movimiento
     coincide con alguno de los tipos del Pokémon atacante.
@@ -46,13 +46,16 @@ def calcular_danio(pokemon_atacante, pokemon_defensor, mov):
     danio = 0
     precision_random = random.randint(1, 100)
 
-    if mov.precision <= precision_random:
+    # Corregido: mov.precision es el nombre correcto del atributo
+    if mov.precision < precision_random:
         danio = 0
         print("El ataque ha fallado!")
         return danio
+        
     # La efectividad total es el producto de las efectividades contra cada tipo.
-    efectividad1 = calcular_efectividad(mov.tipo, pokemon_defensor.tipo1)
-    efectividad2 = calcular_efectividad(mov.tipo, pokemon_defensor.tipo2)
+    # Corregido: mov.tipo -> mov.type
+    efectividad1 = calcular_efectividad(mov.type, pokemon_defensor.type1)
+    efectividad2 = calcular_efectividad(mov.type, pokemon_defensor.type2)
     efectividad_total = efectividad1 * efectividad2
 
     if efectividad_total == 2:
@@ -61,23 +64,24 @@ def calcular_danio(pokemon_atacante, pokemon_defensor, mov):
         print("Es megaefectivo!!")
     if efectividad_total == 0.5:
         print("Es poco efectivo...")
-    if efectividad_total == 0.25:
+    if efectividad_total == 0.25:   
         print("Es muy poco efectivo...")
     if efectividad_total == 0:
         print("El pokemon rival es inmune...")
     
-
     # El multiplicador por ser del mismo tipo (STAB)
-    multiplicador_stab = same_type(pokemon_atacante.tipo1, pokemon_atacante.tipo2, mov.tipo)
+    # Corregido: mov.tipo -> mov.type
+    multiplicador_stab = same_type_attack_bonus(pokemon_atacante.type1, pokemon_atacante.type2, mov.type)
 
     # Fórmula de daño simplificada
-    if mov.special == 1: # Si es un ataque especial
-        danio = mov.danio * efectividad_total * multiplicador_stab * (pokemon_atacante.ataque_especial / pokemon_defensor.defensa_especial)
+    if mov.special: # mov.special ya es un booleano, no necesitas '== 1'
+        # Corregido: atributos de daño y stats en inglés
+        danio = mov.damage * efectividad_total * multiplicador_stab * (pokemon_atacante.sp_atk / pokemon_defensor.sp_def) * 0.2
     else: # Si es un ataque físico
-        danio = mov.danio * efectividad_total * multiplicador_stab * (pokemon_atacante.ataque_fisico / pokemon_defensor.defensa_fisica)
+        # Corregido: atributos de daño y stats en inglés
+        danio = mov.damage * efectividad_total * multiplicador_stab * (pokemon_atacante.attack / pokemon_defensor.defense) * 0.2
 
     return danio
-
 
 
 def ko(danio, vida):
