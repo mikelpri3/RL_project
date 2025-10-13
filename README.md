@@ -1,6 +1,8 @@
 # RL_project
 Proyecto Reinforcement Learning
 
+---
+
 # Explicación Enviroment:
     - Un agente que aprende mediante RL en contra de un bot el cual siempre realiza las mismas acciones
 
@@ -18,6 +20,8 @@ Proyecto Reinforcement Learning
     - Si un pokemon del bot muere, el bot manda el siguiente en su lista ordenada de pokemon
 
     - El primer entrenador que mate a los 3 pokemons del rival gana
+
+---
 
 # Cálculo Daño movimiento:
 Tenemos nuestra propia fórmula para el calculo de daño en nuestro enviroment
@@ -118,6 +122,7 @@ Pikachu usa lanzallamas a Blastoise
 
 danio = 90 * 0.5 * 1 * 50 / 105 * 0.2 = Blastoise pierde 4.29 PS
 
+---
 
 # Reward Function
 
@@ -135,13 +140,21 @@ Otro de los retos es ver como premiar los K.O. , las efectividades entre pokemon
 
 La reward function base sería esta:
 
-reward = danio_hecho - danio_recibido + (efectividad_ofensiva / efectividad_defensiva) - 1
+> **reward = danio_hecho - danio_recibido + (efectividad_ofensiva / efectividad_defensiva) - 1**
+
+Si se termina el combate:
+
+    - si gana el agente: reward = +10
+    - si gana el bot: reward = -10
 
 danio_hecho (0-1) = % de salud quitado con el movimiento del agente al rival, 
 
     - si se falla el ataque o se cambia de pokemon, danio_hecho = 0
+    - si hay K.O. danio_hecho es el % de los PS restantes que tenía el pokemon rival + 1
 
 danio_recibido (0-1) = % de salud recibido del movimiento rival
+
+    - si hay K.O. danio_recibido es el % de los PS restantes que tenía el pokemon del agente - 1
 
 efectividad_ofensiva(0-4) = efectividad_total del movimiento utilizado contra el pokemon rival
 
@@ -159,8 +172,7 @@ El danio_hecho - danio_recibido es la base de la reward function, esto se hace p
 
 Se hace con % de daño, ya que hay pokemons con mucho HP y bajas defensas y viceversa
 
-
-
+<br>
 
 Se suma las efectividades_ofensivas / defensivas, ya que sino haces eso, cuando se cambia de pokemon el reward siempre sería negativo (ya que danio_hecho = 0)
 
@@ -168,8 +180,7 @@ Así premiamos mucho las decisiones desde el punto de vista de la tabla de tipos
 
 Este valor se suma en vez de multiplicar los danios, ya que al hacer cambios el danio_hecho = 0, por tanto no tiene sentido multiplicarle la efectividad_ofensiva y el reward siempre sería negativo en caso de cambio
 
-
-
+<br>
 
 Por último el -1, lo cual no es un número al azar
 
@@ -189,21 +200,27 @@ Se puede multiplicar / dividir ciertos parámetros para premiar más algunas cos
 
 En vez de -1, se puede restar un número mayor, para que en las situaciones "neutras" el reward sea un poco negativo, así buscará si o sí jugar mejor que el bot
 
-
+---
 
 # ¿Cómo iniciar un combate manual?:
 1. Hacer python combate_manual.py   en la terminal
 2. mirar el estado_actual.png / Mirar el visualizador que te abra Windows
 3. escribir en terminal el comando con la acción que quieras tomar
 
+---
+
 # EXTERNAL DATA:
 # Pokemon Data
 The data from the pokemon was taken from
 https://gist.github.com/armgilles/194bcff35001e7eb53a2a8b441e8b2c6
 
+---
+
 # Link Pokemon images
 The pokemon images were taken from
 https://www.wikidex.net/
+
+---
 
 # Link Trainer images
 The trainer images were taken from 
