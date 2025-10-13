@@ -2,6 +2,7 @@
 
 from PIL import Image, ImageDraw, ImageFont
 from classes import Pokemon, Entrenador
+import subprocess
 
 # --- Constantes de configuración para la imagen ---
 ANCHO_AREA_BATALLA = 1130
@@ -112,3 +113,7 @@ def crear_imagen_combate(
     draw.multiline_text((pos_panel[0] + 25, 25), texto_combate, font=font_panel, fill=COLOR_TEXTO_PANEL)
     
     lienzo.save(output_path)
+
+        # Llama al explorador de Windows para que abra la imagen.
+    # WSL se encarga de traducir la ruta del archivo automáticamente.
+    subprocess.run(["explorer.exe", output_path])
