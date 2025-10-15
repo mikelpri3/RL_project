@@ -6,7 +6,7 @@ Proyecto Reinforcement Learning
 # Explicación Enviroment:
     - Un agente que aprende mediante RL en contra de un bot el cual siempre realiza las mismas acciones
 
-    - Enviroment propio para combates pokemon, con movimientos, calculos de daño e interfaz propia. Aunque la mayoría está basado en los juegos originales.
+    - Engine propio para combates pokemon, con movimientos, calculos de daño e interfaz propia. Aunque la mayoría está basado en los juegos originales.
     - Las estadísticas de los pokemon, los tipos y el sistema de combate se basan al 100% en los juegos originales
     - Los pokemon no tienen habilidades, objetos, naturalezas, IV o EVs. Con tal de simplificar el enviroment
 
