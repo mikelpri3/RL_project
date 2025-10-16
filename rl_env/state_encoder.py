@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from typing import Dict
 
-def hp_to_bucket(hp, hp_max, n_buckets=5):
-    if hp <= 0: return 0
-    w = max(1, hp_max // n_buckets)
-    b = (hp - 1)//w + 1
+def hp_to_bucket(hp_actual: float, hp_total: float, n_buckets: int = 5) -> int:
+    if hp_actual <= 0:
+        return 0
+    width = max(1, int(hp_total // n_buckets))
+    b = int((hp_actual - 1) // width) + 1
     return min(b, n_buckets)
 
 @dataclass(frozen=True)
@@ -12,6 +13,8 @@ class TinyState:
     our_hp_b: int
     opp_hp_b: int
     matchup: int
+    ours_left: int    # 1..3
+    opps_left: int    # 1..3
 
 class StateEncoder:
     def __init__(self): 

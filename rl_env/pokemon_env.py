@@ -1,68 +1,19 @@
 # rl_env/pokemon_env.py
-from dataclasses import dataclass
-from typing import Dict, Tuple, List, Optional
+from typing import Dict, Optional
 import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 
-from data import crear_todos_los_entrenadores, df_tipos
+from data import crear_todos_los_entrenadores
 from combate import Combate
 
-# ---------- helpers: buckets & coarse matchup ----------
-def hp_to_bucket(hp_actual: float, hp_total: float, n_buckets: int = 5) -> int:
-    if hp_actual <= 0:
-        return 0
-    width = max(1, int(hp_total // n_buckets))
-    b = int((hp_actual - 1) // width) + 1
-    return min(b, n_buckets)
+from rl_env.state_encoder import hp_to_bucket, TinyState, StateEncoder
+from rl_env.utils_types import _m, coarse_matchup
 
-def _m(att: Optional[str], d: Optional[str]) -> float:
-    if att is None or (isinstance(att, float) and np.isnan(att)):
-        return 1.0
-    if d   is None or (isinstance(d,   float) and np.isnan(d)):
-        return 1.0
-    return float(df_tipos.loc[att, d])
 
-def coarse_matchup(att1: Optional[str], att2: Optional[str],
-                   def1: Optional[str], def2: Optional[str]) -> int:
-    # choose the better attacking type vs defender’s two types
-    mults = []
-    for att in (att1, att2):
-        if att is None or (isinstance(att, float) and np.isnan(att)):
-            continue
-        mults.append(_m(att, def1) * _m(att, def2))
-    if not mults:
-        mults = [1.0]
-    M = max(mults)
-    if M > 1.01: return +1
-    if M < 0.99: return -1
-    return 0
-
-# ---------- tiny state encoder (tuple -> int id) ----------
-@dataclass(frozen=True)
-class TinyState:
-    our_hp_b: int
-    opp_hp_b: int
-    matchup: int
-    ours_left: int    # 1..3
-    opps_left: int    # 1..3
-
-class StateEncoder:
-    def __init__(self):
-        self.to_id: Dict[TinyState, int] = {}
-        self.from_id: Dict[int, TinyState] = {}
-    def encode(self, s: TinyState) -> int:
-        if s in self.to_id:
-            return self.to_id[s]
-        i = len(self.to_id)
-        self.to_id[s] = i
-        self.from_id[i] = s
-        return i
-
-# ---------- Gymnasium adapter ----------
 class PokemonEnv(gym.Env):
     """
-    Gymnasium-compliant wrapper over your Combate.
+    Gymnasium-compliant wrapper over our Combate engine.
     Actions:
       - 0..3: usar movimiento i (si existe)
       - 10+idx_equipo: cambiar al pokémon del slot idx (si está vivo y no es el activo)
@@ -96,7 +47,7 @@ class PokemonEnv(gym.Env):
         if seed is not None:
             self.rng = np.random.default_rng(seed)
         self._t = 0
-        self.battle = Combate(self.t1, self.t2)  # your engine
+        self.battle = Combate(self.t1, self.t2)  # our engine
         obs = self._obs_from_raw(self.battle.estado_raw())
         info = {"action_mask": self._action_mask()}
         return obs, info
