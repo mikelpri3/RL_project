@@ -64,6 +64,8 @@ def objective(trial):
 if __name__ == "__main__":
     pruner  = optuna.pruners.MedianPruner(n_startup_trials=5, n_warmup_steps=1)
     sampler = optuna.samplers.TPESampler(seed=42)
+    # storage = "sqlite:///optuna_pokemon.db"
+    # study = optuna.create_study(direction="maximize", sampler=sampler, pruner=pruner, storage=storage, study_name="qlearn", load_if_exists=True)
     study = optuna.create_study(direction="maximize", sampler=sampler, pruner=pruner)
     study.optimize(objective, n_trials=40, n_jobs=1, show_progress_bar=True)
     print("Best:", study.best_params, "Value:", study.best_value)
