@@ -10,16 +10,28 @@ class TabularQLearner:
         self.t = 0
 
     def _eps(self):
+        """
+        Typical schedule to control exploration vs exploitation.
+        This prevents the agent from getting stuck early in suboptimal behaviors.
+        We want high exploration at first, then reduce it gradually.
+        
+        eps_start = 1.0 (100% random initially)
+        eps_end = 0.05 (mostly greedy later)
+        eps_decay = how fast it decays (larger → slower decay)
+        """
         return self.eps_end + (self.eps_start - self.eps_end) * math.exp(-self.t / self.eps_decay)
 
     def act(self, s, legal_actions):
         eps = self._eps()
+        self.t += 1
+        legal = np.array(list(legal_actions), dtype=int)
         if np.random.rand() < eps:
-            return int(np.random.choice(list(legal_actions)))
-        return int(np.argmax(self.Q[s]))
+            return int(np.random.choice(legal))           # explore among legal
+        q = self.Q[s]
+        # exploit among legal: argmax on the legal slice
+        return int(legal[np.argmax(q[legal])])
 
     def update(self, s, a, r, s2, done):
-        self.t += 1
         q = self.Q[s][a]
         target = r if done else r + self.gamma * float(np.max(self.Q[s2]))
         self.Q[s][a] = q + self.alpha * (target - q)

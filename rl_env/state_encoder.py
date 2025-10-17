@@ -17,6 +17,10 @@ class TinyState:
     opps_left: int    # 1..3
 
 class StateEncoder:
+    """
+    Dictionary that maps the TinyState to an int, so the agent see a number 
+    which represents a unique combination of our_hp_bucket, opp_hp_bucket, matchup, ours_left, opps_left
+    """
     def __init__(self): 
         self._to_id: Dict[TinyState,int] = {}
         self._from_id: Dict[int,TinyState] = {}
