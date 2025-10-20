@@ -7,6 +7,7 @@ from classes import Pokemon, Entrenador, Movimiento
 from danio import calcular_danio, ko
 from reward import calcular_reward_turno
 from image_generator import crear_imagen_combate # <<< NUEVA IMPORTACIÓN
+from types import SimpleNamespace
 
 class Combate:
     def __init__(self, entrenador1: Entrenador, entrenador2: Entrenador):
@@ -225,12 +226,14 @@ class Combate:
                     vida_jugador_ko_param = vida_jugador_antes_ataques
                     self.manejar_debilitado(1)
                     break
-
+    
+        mov_j_for_reward = mov_jugador if mov_jugador is not None else SimpleNamespace(name="Cambio")
+        mov_b_for_reward = mov_bot      if mov_bot      is not None else SimpleNamespace(name="(bot_none)")
         # --- Reward del turno (usando tu reward.py como en simular) ---
         reward = calcular_reward_turno(
             danio_turno_jugador, danio_turno_bot,
             self.pokemon_activo_t1, self.pokemon_activo_t2,
-            mov_jugador, mov_bot,
+            mov_j_for_reward, mov_b_for_reward,
             oponente_al_inicio,
             vida_oponente_antes_ko=vida_oponente_ko_param,
             vida_jugador_antes_ko=vida_jugador_ko_param
