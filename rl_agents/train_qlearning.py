@@ -3,7 +3,7 @@ from rl_env.pokemon_env import PokemonEnv
 from rl_agents.tabular_q import TabularQLearner
 from utils.checkpoint import save_checkpoint, load_checkpoint
 
-CKPT = "checkpoints/q_table.pkl"
+CKPT_DEFAULT = "checkpoints/q_table.pkl"
 
 # ---------- Greedy evaluation (ε = 0) ----------
 def evaluate_greedy(env: PokemonEnv, agent: TabularQLearner, episodes: int = 50, seed: int = 123):
@@ -96,6 +96,6 @@ def main():
 
     csvf.close()
     print(f"[done] CSV log -> {args.log_csv}")
-    
+
 if __name__ == "__main__":
     main()
