@@ -10,9 +10,12 @@ from image_generator import crear_imagen_combate # <<< NUEVA IMPORTACIÓN
 from types import SimpleNamespace
 
 class Combate:
-    def __init__(self, entrenador1: Entrenador, entrenador2: Entrenador):
+    def __init__(self, entrenador1: Entrenador, entrenador2: Entrenador, *, interactive: bool = False):
         self.t1 = entrenador1
         self.t2 = entrenador2
+        self.interactive = interactive
+        # track if the agent MUST switch (active fainted)
+        self.agent_must_switch = False
         self.vidas_equipo_t1 = {p.name: p.hp for p in self.t1.pokemons}
         self.vidas_equipo_t2 = {p.name: p.hp for p in self.t2.pokemons}
         self.pokemon_activo_t1 = self.t1.pokemons[0]
