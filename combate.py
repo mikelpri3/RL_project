@@ -71,6 +71,23 @@ class Combate:
                 return True
             except (ValueError, IndexError): print("Selección no válida.")
 
+    def _elegir_siguiente_pokemon_automatico(self):
+        """
+        Elige automáticamente el siguiente Pokémon disponible para el agente (t1).
+        No pide input, ideal para el entrenamiento de RL.
+        """
+        # Encuentra el primer Pokémon en el equipo que todavía tiene HP
+        for pokemon in self.t1.pokemons:
+            if self.vidas_equipo_t1[pokemon.name] > 0:
+                # Lo establece como el nuevo Pokémon activo
+                self.pokemon_activo_t1 = pokemon
+                self.vida_actual_t1 = self.vidas_equipo_t1[pokemon.name]
+                self._agregar_al_log(f"\n¡{self.t1.name} saca a {self.pokemon_activo_t1.name}!")
+                return True # Cambio exitoso
+        
+        # Esto no debería ocurrir si se llama después de chequear pokemon_left > 0
+        return False
+
     def elegir_movimiento_bot(self):
         return self.pokemon_activo_t2.movimientos[0]
     
@@ -90,7 +107,13 @@ class Combate:
             self._agregar_al_log(f"\n¡{self.pokemon_activo_t1.name} ha sido debilitado!")
             self.vidas_equipo_t1[self.pokemon_activo_t1.name] = 0
             self.pokemon_left_t1 -= 1
-            if self.pokemon_left_t1 > 0: self._elegir_siguiente_pokemon_jugador(forzado=True)
+            if self.pokemon_left_t1 > 0:
+                if self.interactive:
+                    # Si estamos en modo interactivo, preguntamos al usuario
+                    self._elegir_siguiente_pokemon_jugador(forzado=True)
+                else:
+                    # Si no, el agente elige automáticamente
+                    self._elegir_siguiente_pokemon_automatico()
         else:
             self._agregar_al_log(f"\n¡{self.pokemon_activo_t2.name} ha sido debilitado!")
             self.vidas_equipo_t2[self.pokemon_activo_t2.name] = 0

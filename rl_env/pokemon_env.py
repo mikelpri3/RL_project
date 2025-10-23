@@ -47,7 +47,7 @@ class PokemonEnv(gym.Env):
         if seed is not None:
             self.rng = np.random.default_rng(seed)
         self._t = 0
-        self.battle = Combate(self.t1, self.t2)  # our engine
+        self.battle = Combate(self.t1, self.t2, interactive=False)  # our engine
         obs = self._obs_from_raw(self.battle.estado_raw())
         info = {"action_mask": self._action_mask()}
         return obs, info
