@@ -89,7 +89,11 @@ class Combate:
         return False
 
     def elegir_movimiento_bot(self):
-        return self.pokemon_activo_t2.movimientos[0]
+        """
+        Política simple para el bot: elige un movimiento al azar entre los disponibles.
+        """
+        from random import choice
+        return choice(self.pokemon_activo_t2.movimientos)
     
     def ejecutar_ataque(self, atacante, defensor, mov):
         self._agregar_al_log(f"\n{atacante.name} utiliza {mov.name}...")
@@ -165,7 +169,10 @@ class Combate:
         - 10+idx_equipo: cambiar al pokémon del equipo con ese índice (si está vivo y no es el activo)
         """
         a = self.pokemon_activo_t1
-        acc = [i for i in range(len(a.movimientos))]  # 0..n_moves-1
+        acc = []
+        # If not forced to switch, include moves
+        if not self.agent_must_switch:
+            acc.extend(range(len(a.movimientos)))  # 0..n_moves-1
         # switches
         for i, p in enumerate(self.t1.pokemons):
             if self.vidas_equipo_t1[p.name] > 0 and p.name != a.name:
@@ -181,6 +188,15 @@ class Combate:
         self.vida_actual_t1 = self.vidas_equipo_t1[nuevo.name]
         self._agregar_al_log(f"\n¡{self.t1.name} saca a {self.pokemon_activo_t1.name}!")
         return True
+
+    def is_done(self) -> bool:
+        return (self.pokemon_left_t1 == 0) or (self.pokemon_left_t2 == 0)
+
+    def winner(self) -> str | None:
+        """Return 'agent' if t2 is out, 'bot' if t1 is out, else None."""
+        if self.pokemon_left_t2 == 0: return "agent"
+        if self.pokemon_left_t1 == 0: return "bot"
+        return None
 
     def step_rl(self, agent_action):
         """
@@ -199,20 +215,17 @@ class Combate:
 
         danio_turno_jugador = 0.0
         danio_turno_bot     = 0.0
-
+        # Agente: mover o cambiar
+        mov_jugador = None
         # ---- Acción del agente: mover o cambiar ----
         if isinstance(agent_action, int) and agent_action >= 10:
             # Cambio de pokémon
             idx = agent_action - 10
-            ok = self._aplicar_cambio_agente(idx)
-            mov_jugador = None  # no hay movimiento si hay cambio
+            self._aplicar_cambio_agente(idx)
         else:
             # Usar movimiento i
             a = self.pokemon_activo_t1
-            if agent_action < 0 or agent_action >= len(a.movimientos):
-                # acción inválida -> no hace nada (penalización será implícita vía reward baja)
-                mov_jugador = None
-            else:
+            if 0 <= agent_action < len(a.movimientos):
                 mov_jugador = a.movimientos[agent_action]
 
         # --- Movimiento del bot (misma política que antes) ---
@@ -226,9 +239,8 @@ class Combate:
         ataques.append({'atacante': self.pokemon_activo_t2, 'defensor': self.pokemon_activo_t1, 'mov': mov_bot})
 
         # Si ambos atacan, decide por speed (si empatan, va primero el agente, como en README)
-        if len(ataques) == 2:
-            if self.pokemon_activo_t1.speed < self.pokemon_activo_t2.speed:
-                ataques.reverse()
+        if len(ataques) == 2 and self.pokemon_activo_t1.speed < self.pokemon_activo_t2.speed:
+            ataques.reverse()
 
         vida_oponente_ko_param, vida_jugador_ko_param = None, None
 
@@ -255,6 +267,11 @@ class Combate:
     
         mov_j_for_reward = mov_jugador if mov_jugador is not None else SimpleNamespace(name="Cambio")
         mov_b_for_reward = mov_bot      if mov_bot      is not None else SimpleNamespace(name="(bot_none)")
+        
+        # --- ¿Fin del combate? El mismo criterio del final de simular ---
+        done = (self.pokemon_left_t1 == 0) or (self.pokemon_left_t2 == 0)
+        agent_won = (self.pokemon_left_t2 == 0) if done else None
+        
         # --- Reward del turno (usando tu reward.py como en simular) ---
         reward = calcular_reward_turno(
             danio_turno_jugador, danio_turno_bot,
@@ -262,12 +279,12 @@ class Combate:
             mov_j_for_reward, mov_b_for_reward,
             oponente_al_inicio,
             vida_oponente_antes_ko=vida_oponente_ko_param,
-            vida_jugador_antes_ko=vida_jugador_ko_param
+            vida_jugador_antes_ko=vida_jugador_ko_param,
+            done=done,
+            agent_won=agent_won
         )
-
-        # --- ¿Fin del combate? El mismo criterio del final de simular ---
-        done = (self.pokemon_left_t1 == 0) or (self.pokemon_left_t2 == 0)
-
+        # Optional: mark if next turn must switch (only if you don’t auto-switch immediately)
+        # self.agent_must_switch = (self.vida_actual_t1 <= 0 and self.pokemon_left_t1 > 0)
         return reward, done
 
 

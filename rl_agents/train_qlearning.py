@@ -2,6 +2,7 @@ import numpy as np, os, argparse, csv, time
 from rl_env.pokemon_env import PokemonEnv
 from rl_agents.tabular_q import TabularQLearner
 from utils.checkpoint import save_checkpoint, load_checkpoint
+import datetime
 
 CKPT_DEFAULT = "checkpoints/q_table.pkl"
 
@@ -26,18 +27,19 @@ def evaluate_greedy(env: PokemonEnv, agent: TabularQLearner, episodes: int = 50,
             obs, r, terminated, truncated, info = env.step(a)
             G += r
         rets.append(G)
-        if terminated and r > 0:
+        if terminated and env.battle.winner() == "agent": #little change here to improve reward
             wins += 1
     return wins / episodes, float(np.mean(rets))
 
 def main():
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     ap = argparse.ArgumentParser()
     ap.add_argument("--episodes", type=int, default=1000)
     ap.add_argument("--eval-every", type=int, default=50)
     ap.add_argument("--ckpt", type=str, default=CKPT_DEFAULT)
     ap.add_argument("--load", action="store_true", help="load checkpoint if exists")
     ap.add_argument("--verbose", action="store_true")
-    ap.add_argument("--log-csv", type=str, default="logs/train_log.csv")
+    ap.add_argument("--log-csv", type=str, default="logs/train_log_{timestamp}.csv".format(timestamp=timestamp))
     ap.add_argument("--alpha", type=float, default=0.30)
     ap.add_argument("--gamma", type=float, default=0.99)
     ap.add_argument("--eps-start", type=float, default=1.0)
