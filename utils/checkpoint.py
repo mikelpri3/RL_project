@@ -19,8 +19,8 @@ def load_checkpoint(agent, env, path: str):
     # restore Q as defaultdict again (so unseen states still auto-init)
     agent.Q = defaultdict(lambda: np.zeros(agent.n_actions, dtype=np.float32), payload["Q"])
     # rebuild encoder maps
-    env.encoder.to_id.clear()
-    env.encoder.from_id.clear()
+    env.encoder._to_id.clear()
+    env.encoder._from_id.clear()
     for sid, tiny in payload["encoder_from_id"].items():
-        env.encoder.from_id[sid] = tiny
-        env.encoder.to_id[tiny] = sid
+        env.encoder._from_id[sid] = tiny
+        env.encoder._to_id[tiny] = sid

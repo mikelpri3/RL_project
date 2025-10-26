@@ -1,0 +1,7 @@
+run,episodes,final_train_return,final_episode_length,final_epsilon,final_eval_winrate,final_eval_return,max_q_rows
+train_log,200,52.9647,31.0,0.465076,0.0,272.0723,241
+train_log_20251024_125727,500,110.0185,10.0,0.223289,1.0,110.7689,250
+train_log_20251026_223102,1000,108.035,11.0,0.094499,1.0,109.6629,317
+train_log_20251026_223127,10000,110.9092,9.0,0.05,1.0,110.745,340
+train_log_sarsa,1000,110.86,9.0,0.0969,1.0,,326
+train_log_{timestamp},49,-102.4781,18.0,0.824496,,,175
